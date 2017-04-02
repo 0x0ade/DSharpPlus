@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace DSharpPlus
 {
@@ -137,9 +138,11 @@ namespace DSharpPlus
         /// <param name="file_path"></param>
         /// <param name="file_name"></param>
         /// <param name="tts"></param>
+        /// <param name="file_stream"></param>
+        /// <param name="file_stream_keepopen"></param>
         /// <returns></returns>
-        public async Task<DiscordMessage> Respond(string content, string file_path, string file_name, bool tts = false) 
-            => await DiscordClient.InternalUploadFile(ChannelID, file_path, file_name, content, tts);
+        public async Task<DiscordMessage> Respond(string content, string file_path, string file_name, bool tts = false, Stream file_stream = null, bool file_stream_keepopen = false)
+            => await DiscordClient.InternalUploadFile(ChannelID, file_path, file_name, content, tts, file_stream, file_stream_keepopen);
 
         /// <summary>
         /// Creates a reaction to this message

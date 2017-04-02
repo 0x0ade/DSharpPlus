@@ -160,12 +160,13 @@ namespace DSharpPlus
                 byte[] headerbytes = Encoding.UTF8.GetBytes(header);
                 await rs.WriteAsync(headerbytes, 0, headerbytes.Length);
 
-                FileStream fileStream = new FileStream(request.FilePath, FileMode.Open, FileAccess.Read);
+                Stream fileStream = request.FileStream ?? new FileStream(request.FilePath, FileMode.Open, FileAccess.Read);
                 await fileStream.CopyToAsync(rs);
 
                 byte[] trailer = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
                 await rs.WriteAsync(trailer, 0, trailer.Length);
                 rs.Close();
+                if (request.FileStream == null || !request.FileStreamKeepOpen)
                 fileStream.Close();
             }
             else

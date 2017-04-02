@@ -1937,7 +1937,7 @@ namespace DSharpPlus
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
-        internal static async Task<DiscordMessage> InternalUploadFile(ulong channel_id, string file_path, string file_name, string content = "", bool tts = false)
+        internal static async Task<DiscordMessage> InternalUploadFile(ulong channel_id, string file_path, string file_name, string content = "", bool tts = false, Stream file_stream = null, bool file_stream_keepopen = false)
         {
             string url = Utils.GetAPIBaseUri() + Endpoints.Channels + "/" + channel_id + Endpoints.Messages;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
@@ -1946,7 +1946,7 @@ namespace DSharpPlus
                 values.Add("content", content);
             if (tts)
                 values.Add("tts", tts.ToString());
-            WebRequest request = WebRequest.CreateMultipartRequest(url, WebRequestMethod.POST, headers, values, file_path, file_name);
+            WebRequest request = WebRequest.CreateMultipartRequest(url, WebRequestMethod.POST, headers, values, file_path, file_name, file_stream, file_stream_keepopen);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
