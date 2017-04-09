@@ -878,6 +878,7 @@ namespace DSharpPlus
         {
             _lastHeartbeat = new DateTime();
             _waitingForAck = false;
+
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
             _me = obj["d"]["user"].ToObject<DiscordUser>();
             _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
@@ -1499,7 +1500,6 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                _waitingForAck = true;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
                 _heartbeatThread = new Thread(StartHeartbeating);
                 _heartbeatThread.Start();
@@ -2934,7 +2934,7 @@ namespace DSharpPlus
 
             _cancelTokenSource.Cancel();
             _guilds = null;
-            _heartbeatThread.Abort();
+            _heartbeatThread?.Abort();
             _heartbeatThread = null;
             _me = null;
             _modules = null;
