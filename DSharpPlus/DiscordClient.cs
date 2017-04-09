@@ -831,6 +831,7 @@ namespace DSharpPlus
 
         internal async Task OnDispatch(JObject obj)
         {
+            _sequence = obj.Value<int>("s");
             switch (obj.Value<string>("t").ToLower())
             {
                 case "ready": await OnReadyEvent(obj); break;
