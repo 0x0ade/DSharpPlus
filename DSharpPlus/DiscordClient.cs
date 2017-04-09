@@ -876,6 +876,8 @@ namespace DSharpPlus
         #region Events
         internal async Task OnReadyEvent(JObject obj)
         {
+            _lastHeartbeat = new DateTime();
+            _waitingForAck = false;
             _gatewayVersion = obj["d"]["v"].ToObject<int>();
             _me = obj["d"]["user"].ToObject<DiscordUser>();
             _privateChannels = obj["d"]["private_channels"].ToObject<List<DiscordDMChannel>>();
@@ -1488,6 +1490,7 @@ namespace DSharpPlus
             {
                 _debugLogger.LogMessage(LogLevel.Debug, "Websocket", "Received false in OP 9 - Starting a new session", DateTime.Now);
                 _sessionID = "";
+                _sequence = 0;
                 await InternalReconnect(true);
             }
         }
@@ -1496,7 +1499,7 @@ namespace DSharpPlus
         {
             await Task.Run(() =>
             {
-                _waitingForAck = false;
+                _waitingForAck = true;
                 _heartbeatInterval = obj["d"].Value<int>("heartbeat_interval");
                 _heartbeatThread = new Thread(StartHeartbeating);
                 _heartbeatThread.Start();
@@ -1516,7 +1519,7 @@ namespace DSharpPlus
 
         internal async void StartHeartbeating()
         {
-            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Starting Heartbeat", DateTime.Now);
+            _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", $"Starting Heartbeat (Interval: {_heartbeatInterval}ms)", DateTime.Now);
             while (!_cancelToken.IsCancellationRequested)
             {
                 await SendHeartbeat();
@@ -1547,8 +1550,15 @@ namespace DSharpPlus
         {
             if (_waitingForAck)
             {
-                _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
-                await InternalReconnect();
+                if (_lastHeartbeat == new DateTime())
+                {
+                    while (_waitingForAck) ;
+                }
+                else
+                {
+                    _debugLogger.LogMessage(LogLevel.Critical, "Websocket", "Missed a heartbeat ack. Reconnecting.", DateTime.Now);
+                    await InternalReconnect();
+                }
             }
 
             _debugLogger.LogMessage(LogLevel.Unnecessary, "Websocket", "Sending Heartbeat", DateTime.Now);
