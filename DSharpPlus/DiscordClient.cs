@@ -1615,7 +1615,15 @@ namespace DSharpPlus
                         }
                     }
                 };
-                _websocketClient._socket.Send(obj.ToString());
+                try
+                {
+                    _websocketClient._socket.Send(obj.ToString());
+                }
+                catch
+                {
+                    // Too late for any kind of resume - let's just reconnect
+                    InternalReconnect(true).GetAwaiter().GetResult();
+                }
             });
         }
 
