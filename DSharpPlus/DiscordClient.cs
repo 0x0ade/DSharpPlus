@@ -2498,7 +2498,7 @@ namespace DSharpPlus
 
         internal static async Task<DiscordRole> InternalCreateGuildRole(ulong guild_id)
         {
-            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + guild_id;
+            string url = Utils.GetAPIBaseUri() + Endpoints.Guilds + "/" + guild_id + Endpoints.Roles;
             WebHeaderCollection headers = Utils.GetBaseHeaders();
             WebRequest request = WebRequest.CreateRequest(url, WebRequestMethod.POST, headers);
             WebResponse response = await WebWrapper.HandleRequestAsync(request);
